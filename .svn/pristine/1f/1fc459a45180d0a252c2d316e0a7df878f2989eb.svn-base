@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+	<display-name></display-name>
+	<servlet>
+		<description>首页</description>
+		<servlet-name>IndexServlet</servlet-name>
+		<servlet-class>com.zxz.servlet.IndexServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>用户相关</description>
+		<servlet-name>UserServlet</servlet-name>
+		<servlet-class>com.zxz.servlet.UserServlet</servlet-class>
+	</servlet>
+  <servlet>
+    <description>用户相关</description>
+    <servlet-name>Me</servlet-name>
+    <servlet-class>com.zxz.servlet.Me</servlet-class>
+  </servlet>
+  <servlet>
+    <description>用户相关</description>
+    <servlet-name>RoomServlet</servlet-name>
+    <servlet-class>com.zxz.servlet.RoomServlet</servlet-class>
+  </servlet>
+
+
+
+	<servlet-mapping>
+		<servlet-name>IndexServlet</servlet-name>
+		<url-pattern>/IndexServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>UserServlet</servlet-name>
+		<url-pattern>/UserServlet</url-pattern>
+	</servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Me</servlet-name>
+    <url-pattern>/Me</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>RoomServlet</servlet-name>
+    <url-pattern>/RoomServlet</url-pattern>
+  </servlet-mapping>
+
+	<filter>
+		<filter-name>EncodingFilter</filter-name>
+		<filter-class>com.zxz.servlet.EncodingFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>EncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<error-page>
+		<error-code>404</error-code>
+		<location>/404.jsp</location>
+	</error-page>
+	
+	<filter>
+		<filter-name>AuthorFilter</filter-name>
+		<filter-class>com.zxz.servlet.AuthorFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>AuthorFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+</web-app>

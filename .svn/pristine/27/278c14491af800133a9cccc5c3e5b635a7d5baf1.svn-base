@@ -1,0 +1,81 @@
+package com.zxz.domain;
+
+import java.util.Date;
+
+/**运营人员
+ * @author Administrator
+ *
+ */
+public class OperateUser {
+	
+    private Integer id;
+
+    private String username;//用户名
+
+    private String password;//密码
+    
+    private String address;//地址
+    
+    private String mobile;//手机号码
+
+    private Integer pid;//父id
+
+    private Date createDate;//注册时间
+    
+    
+    public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username == null ? null : username.trim();
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password == null ? null : password.trim();
+    }
+
+    public Integer getPid() {
+        return pid;
+    }
+
+    public void setPid(Integer pid) {
+        this.pid = pid;
+    }
+}

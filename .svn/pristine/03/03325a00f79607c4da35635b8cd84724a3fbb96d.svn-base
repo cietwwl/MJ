@@ -1,0 +1,33 @@
+package com.zxz.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.zxz.rpcclient.RpcClient;
+import com.zxz.service.DateService;
+
+public class IndexServlet extends HttpServlet {
+
+	DateService dateService = RpcClient.getService(DateService.class,"com.zxz.service.DateServiceImpl");
+	
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		this.doPost(request, response);
+	}
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		int totalOneLineUser = dateService.getTotalOneLineUser();
+		int totalLoginLineUser = dateService.getTotalLoginLineUser();
+		request.setAttribute("totalOneLineUser", totalOneLineUser);
+		request.setAttribute("totalLoginLineUser", totalLoginLineUser);
+		request.getRequestDispatcher("/welcome.jsp").forward(request, response);
+	}
+
+}

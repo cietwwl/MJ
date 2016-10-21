@@ -1,0 +1,273 @@
+package com.zxz.servlet;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.mysql.jdbc.StringUtils;
+import com.zxz.domain.OperateUser;
+import com.zxz.domain.User;
+import com.zxz.service.UserService;
+import com.zxz.util.PageUtil;
+import com.zxz.util.StringUtil;
+
+public class UserServlet extends BaseServlet {
+
+	private static final long serialVersionUID = 1L;
+	UserService userService = new UserService();
+
+	public UserServlet() {}
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		this.doPost(request, response);
+	}
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		super.doPost(request, response);
+	}
+
+	@Override
+	public void receiveMessage(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException  {
+		String method = request.getParameter("method");
+		if (method.equals("userList")) {
+			userList(request, response);//显示用户列表
+		}else if(method.equals("userDetail")){
+			userDetail(request, response);//用户的详细信息
+		}else if(method.equals("toAddCard")){
+			toAddCard(request,response);//跳转到添加房卡页面
+		}else if(method.equals("addUserCard")){
+			addUserCard(request,response);//添加用户的房卡
+		}else if(method.equals("login")){
+			login(request,response);//登录
+		}else if(method.equals("logout")){
+			logout(request,response);//退出
+		}else if(method.equals("chargeRecord")){
+			chargeRecord(request,response);//充值记录
+		}else if(method.equals("createOpeate")){
+			createOpeate(request,response);//跳转到添加代理
+		}else if(method.equals("addOperate")){
+			addOperate(request,response);//添加代理
+		}else if(method.equals("operateList")){
+			operateList(request,response);//代理查询
+		}
+	}
+	
+	
+	/**代理查询
+	 * @param request
+	 * @param response
+	 */
+	private void operateList(HttpServletRequest request,
+			HttpServletResponse response) {
+		String userNameOrMobile = getParameter("userNameOrMobile");//用户名/昵称
+		String registDate = getParameter("registDate");//注册时间排序
+		String consumeCard = getParameter("consumeCard");//房卡消耗排序
+		String sindex = getParameter("index");
+		
+		int index = 1;
+		if (sindex != null && !"".equals(sindex)) {
+			index = Integer.parseInt(sindex);
+		}
+		PageUtil<Map<String, Object>> pageUtil = new PageUtil<Map<String, Object>>();
+		pageUtil.setIndex(index);
+		userService.findOperateUserByPage(pageUtil,userNameOrMobile,registDate,consumeCard);
+		setAttribute("pageUtil", pageUtil);
+		setAttribute("userNameOrMobile", userNameOrMobile);
+		setAttribute("registDate", registDate);
+		setAttribute("consumeCard", consumeCard);
+		forward("/opreate/operateList.jsp");
+	}
+
+	/**添加代理
+	 * @param request
+	 * @param response
+	 */
+	private void addOperate(HttpServletRequest request,
+			HttpServletResponse response) {
+		String userName = getParameter("userName");
+		String mobile = getParameter("mobile");
+		String address = getParameter("address");
+		OperateUser operateUser = new OperateUser();
+		operateUser.setAddress(address);
+		operateUser.setMobile(mobile);
+		operateUser.setUsername(userName);
+		int result = userService.saveOneOperateUser(operateUser);
+		if(result<0){
+			if(result==-1){
+				setAttribute("error", "手机号已存在");
+			}else if(result==-2){
+				setAttribute("error", "用户名已存在");
+			}
+			setAttribute("userName", userName);
+			setAttribute("mobile", mobile);
+			setAttribute("address", address);
+			forward("/opreate/create.jsp");
+			return;
+		}
+		PageUtil<Map<String, Object>> pageUtil = new PageUtil<Map<String, Object>>();
+		userService.findOperateUserByPage(pageUtil , null, "desc", null);
+		forward("/opreate/operateList.jsp");
+	}
+
+	/**创建代理
+	 * @param request
+	 * @param response
+	 */
+	private void createOpeate(HttpServletRequest request,
+			HttpServletResponse response) {
+		forward("/opreate/create.jsp");
+	}
+
+	/**充值记录
+	 * @param request
+	 * @param response
+	 */
+	private void chargeRecord(HttpServletRequest request,
+			HttpServletResponse response) {
+		int index = getIndex();
+		int pageSize = getPageSize();
+		String operateIdOrName = getParameter("operateIdOrName");//代理姓名或id
+		String roomCard = getParameter("roomCard");//房卡数量
+		String consumeCard = getParameter("consumeCard");//消耗数量
+		String chargeTotal = getParameter("chargeTotal");//充值数量
+		PageUtil<Map<String,Object>> pageUtil = new PageUtil<>();
+		pageUtil.setIndex(index);
+		pageUtil.setSize(pageSize);
+		userService.managerFindChargeRecord(pageUtil,operateIdOrName,roomCard,consumeCard,chargeTotal);
+		request.setAttribute("pageUtil", pageUtil);
+		request.setAttribute("operateIdOrName", operateIdOrName);
+		request.setAttribute("roomCard", roomCard);
+		request.setAttribute("consumeCard", consumeCard);
+		request.setAttribute("chargeTotal", chargeTotal);
+		forward("/opreate/chargeRecord.jsp");
+	}
+
+	/**退出登录
+	 * @param request
+	 * @param response
+	 */
+	private void logout(HttpServletRequest request, HttpServletResponse response) {
+		session.removeAttribute("user");
+		sendRedirect(getContextPath());
+	}
+
+	
+	/**登录
+	 * @param request
+	 * @param response
+	 */
+	private void login(HttpServletRequest request, HttpServletResponse response) {
+		String userName = request.getParameter("userName");
+		String passWord = request.getParameter("passWord");
+		String contextPath = getContextPath();
+		if(StringUtil.isNull(userName)||StringUtil.isNull(passWord)){
+			sendRedirect(contextPath+"/manager/login.jsp");
+			return;
+		}
+		boolean result = userService.login(userName,passWord,request);
+		if(result){//登录成功
+			sendRedirect("IndexServlet");
+		}else{//登录失败
+			sendRedirect(contextPath+"/manager/login.jsp");
+		}
+	}
+
+	/**添加用户的房卡
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void addUserCard(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String userId = request.getParameter("userId");
+		String total = request.getParameter("total");
+		String money = request.getParameter("money");
+		OperateUser user  = (OperateUser) session.getAttribute("user");
+		Integer operateId = user.getId();
+		float floatMoney = Float.parseFloat(money);
+		int result = userService.addUserCardByUserId(userId,total,operateId,floatMoney);
+		sendRedirect("UserServlet?method=userDetail&userId="+userId);
+	}
+
+	/**跳转到添加房卡页面
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void toAddCard(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String userId = request.getParameter("userId");
+		request.setAttribute("userId", userId);
+		forward("/manager/addUserCard.jsp");
+	}
+
+	/**显示用户的详情
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void userDetail(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String suserId = request.getParameter("userId");
+		int uid = Integer.parseInt(suserId);
+		User user = userService.findUserById(uid);
+		//查询用户的充值记录
+		PageUtil<Map<String, Object>> pageUtil = new PageUtil<>();
+		String pageIndex = request.getParameter("index");
+		int index = 1;
+		if(!StringUtil.isNull(pageIndex)){
+			index = Integer.parseInt(pageIndex);
+		}
+		pageUtil.setIndex(index);
+		pageUtil.setSize(10);
+		userService.queryUserChargeRecord(pageUtil , uid);
+		request.setAttribute("user", user);
+		request.setAttribute("pageUtil", pageUtil);
+		request.setAttribute("userId", suserId);
+		forward("/manager/userDetails.jsp");
+	}
+
+	/**显示用户列表
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void userList(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String idOrNick = getParameter("idOrNick");//用户名/昵称
+		String recommendId = getParameter("recommendId");//推荐人id
+		String beginDate = getParameter("beginDate");//注册开始时间
+		String endDate = getParameter("endDate");//注册结束时间
+		String registDate = getParameter("registDate");//注册时间排序
+		String consumeCard = getParameter("consumeCard");//房卡消耗排序
+		String sindex = getParameter("index");
+		
+		int index = 1;
+		if (sindex != null && !"".equals(sindex)) {
+			index = Integer.parseInt(sindex);
+		}
+		PageUtil<User> pageUtil = new PageUtil<User>();
+		pageUtil.setIndex(index);
+		userService.findUserByPage(pageUtil,idOrNick,recommendId,beginDate,endDate,registDate,consumeCard);
+		setAttribute("recommendId", recommendId);
+		setAttribute("beginDate", beginDate);
+		setAttribute("endDate", endDate);
+		setAttribute("pageUtil", pageUtil);
+		setAttribute("idOrNick", idOrNick);
+		setAttribute("registDate", registDate);
+		setAttribute("consumeCard", consumeCard);
+		forward("/user/userList.jsp");
+	}
+
+}

@@ -1,0 +1,47 @@
+package com.zxz.dao.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import com.zxz.dao.BaseDao;
+import com.zxz.dao.OperateUserDao;
+import com.zxz.domain.OperateUser;
+
+public class OperateUserDaoImpl extends BaseDao<OperateUser> implements OperateUserDao{
+
+	@Override
+	public int deleteByPrimaryKey(Integer id) {
+		return 0;
+	}
+
+	@Override
+	public int insert(OperateUser record) {
+		return 0;
+	}
+
+	@Override
+	public int insertSelective(OperateUser record) {
+		return 0;
+	}
+
+	@Override
+	public OperateUser selectByPrimaryKey(Integer id) {
+		return null;
+	}
+
+	@Override
+	public int updateByPrimaryKeySelective(OperateUser record) {
+		return 0;
+	}
+
+	@Override
+	public int updateByPrimaryKey(OperateUser record) {
+		return 0;
+	}
+
+	@Override
+	public List<OperateUser> selectListByMap(Map<String, Object> map) {
+		return super.queryForList("OperateUser.selectListByMap", map);
+	}
+
+}

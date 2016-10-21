@@ -1,0 +1,106 @@
+package com.zxz.servlet;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+
+public abstract class BaseServlet extends HttpServlet implements CallBack,DoExcepion{
+
+	private static Logger logger = Logger.getLogger(BaseServlet.class);  
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	HttpServletRequest request;
+	HttpServletResponse response;
+	
+	public BaseServlet() {
+	}
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		this.request = req;
+		this.response = resp;
+		try {
+			receiveMessage(req, resp);
+		} catch (Exception e) {
+			doWithException(e);
+		}
+	}
+
+	public HttpServletRequest getRequest() {
+		return request;
+	}
+
+	public BaseServlet setRequest(HttpServletRequest request) {
+		this.request = request;
+		return this;
+	}
+
+	public HttpServletResponse getResponse() {
+		return response;
+	}
+
+	public void setResponse(HttpServletResponse response) {
+		this.response = response;
+	}
+	
+	/**重定向
+	 * @param path
+	 */
+	public void sendRedirect(String path){
+		try {
+			response.sendRedirect(path);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**转发
+	 * @param path
+	 */
+	public void forward(String path){
+		try {
+			request.getRequestDispatcher(path).forward(request, response);
+		} catch (ServletException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void doWithException(Exception exception) {
+		exception.printStackTrace();
+		StringBuffer requestURL = request.getRequestURL();
+		System.out.println("requestURL:"+requestURL);
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		Iterator<String> iterator = parameterMap.keySet().iterator();
+		int begin=1;
+		while(iterator.hasNext()){
+			String key = iterator.next();
+			String[] strings = parameterMap.get(key);
+			if(begin==1){
+				requestURL.append("?");
+			}
+			for(int i=0;i<strings.length;i++){
+				if(begin==1){
+					requestURL.append(key+"="+strings[i]);
+				}else{
+					requestURL.append("&"+key+"="+strings[i]);
+				}
+				System.out.println("key:"+key+" "+strings[i]);
+				begin++;
+			}
+		}
+		logger.fatal("出错的请求地址是:"+requestURL);
+		sendRedirect("/MJ/errorPage/error.html");
+	}
+}

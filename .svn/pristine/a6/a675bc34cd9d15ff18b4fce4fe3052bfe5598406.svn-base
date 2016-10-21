@@ -1,0 +1,27 @@
+package com.zxz.util;
+
+/**常量
+ * @author Administrator
+ *
+ */
+public interface Constants {
+
+	/**
+	 * 排序使用
+	 */
+	public static final String haveOrderby = "haveOrderby";
+	
+	
+	
+	/**
+	 * 开始页
+	 */
+	public static final String rowStart = "rowStart";
+	
+	
+	
+	/**
+	 * 结束页
+	 */
+	public static final String pageSize = "pageSize";
+}

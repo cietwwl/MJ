@@ -1,0 +1,60 @@
+package com.zxz.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.zxz.domain.OperateUser;
+import com.zxz.service.UserService;
+import com.zxz.util.PageUtil;
+
+public class Me  extends BaseServlet{
+	
+	UserService userService = new UserService();
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		this.doPost(request, response);
+	}
+
+	
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		super.doPost(request, response);
+	}
+
+	@Override
+	public void receiveMessage(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String method = request.getParameter("method");
+		if(method.equals("chargeRecord")){
+			chargeRecord(request,response);//充值记录
+		}
+	}
+
+	/**充值记录
+	 * @param request
+	 * @param response
+	 */
+	private void chargeRecord(HttpServletRequest request,
+			HttpServletResponse response) {
+		OperateUser operateUser = (OperateUser) session.getAttribute("user");
+		int index = getIndex();
+		int pageSize = getPageSize();
+		String beginDate = request.getParameter("beginDate");
+		String endDate = request.getParameter("endDate");
+		PageUtil<Map<String,Object>> pageUtil = new PageUtil<>();
+		pageUtil.setIndex(index);
+		pageUtil.setSize(pageSize);
+		userService.findChargeRecord(pageUtil,operateUser.getId(),beginDate,endDate);
+		request.setAttribute("pageUtil", pageUtil);
+		forward("/manager/chargeRecord.jsp");
+	}
+
+	
+}

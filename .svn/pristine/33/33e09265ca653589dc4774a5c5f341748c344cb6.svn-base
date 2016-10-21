@@ -1,0 +1,26 @@
+package com.zxz.dao;
+
+import java.util.Map;
+
+import com.zxz.domain.OneRoom;
+
+public interface OneRoomDao {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(OneRoom record);
+
+    int insertSelective(OneRoom record);
+
+    OneRoom selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(OneRoom record);
+
+    int updateByPrimaryKey(OneRoom record);
+    
+    
+    /**根据条件，查询总数
+     * @return
+     */
+    int selectOneRoomListTotal(Map<String, Object> map);
+    
+}

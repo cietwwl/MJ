@@ -1,0 +1,13 @@
+package com.zxz.dao.fatherAndChild;
+
+public class Child extends Father{
+	
+	
+	public static void main(String[] args) {
+		Child child = new Child();
+		child.setName("gushuang");
+		child.showName();
+	}
+
+	
+}

@@ -1,0 +1,27 @@
+package com.zxz.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.zxz.domain.OperateUser;
+
+public interface OperateUserDao {
+    int deleteByPrimaryKey(Integer id);
+
+    int insert(OperateUser record);
+
+    int insertSelective(OperateUser record);
+
+    OperateUser selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(OperateUser record);
+
+    int updateByPrimaryKey(OperateUser record);
+    
+    /**查询集合
+     * @param map
+     * @return
+     */
+    List<OperateUser> selectListByMap(Map<String,Object> map);
+    
+}

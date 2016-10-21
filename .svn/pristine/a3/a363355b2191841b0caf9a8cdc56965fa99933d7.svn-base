@@ -1,0 +1,199 @@
+package com.zxz.servlet;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.mysql.jdbc.StringUtils;
+import com.zxz.domain.OperateUser;
+import com.zxz.domain.User;
+import com.zxz.service.UserService;
+import com.zxz.util.PageUtil;
+import com.zxz.util.StringUtil;
+
+public class UserServlet extends BaseServlet {
+
+	private static final long serialVersionUID = 1L;
+	UserService userService = new UserService();
+
+	public UserServlet() {}
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		this.doPost(request, response);
+	}
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		super.doPost(request, response);
+	}
+
+	@Override
+	public void receiveMessage(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException  {
+		String method = request.getParameter("method");
+		if (method.equals("userList")) {
+			userList(request, response);//显示用户列表
+		}else if(method.equals("userDetail")){
+			userDetail(request, response);//用户的详细信息
+		}else if(method.equals("toAddCard")){
+			toAddCard(request,response);//跳转到添加房卡页面
+		}else if(method.equals("addUserCard")){
+			addUserCard(request,response);//添加用户的房卡
+		}else if(method.equals("login")){
+			login(request,response);//登录
+		}else if(method.equals("logout")){
+			logout(request,response);//退出
+		}else if(method.equals("chargeRecord")){
+			chargeRecord(request,response);//充值记录
+		}
+	}
+	
+	
+	/**充值记录
+	 * @param request
+	 * @param response
+	 */
+	private void chargeRecord(HttpServletRequest request,
+			HttpServletResponse response) {
+		OperateUser operateUser = (OperateUser) session.getAttribute("user");
+		int index = getIndex();
+		int pageSize = getPageSize();
+		String beginDate = request.getParameter("beginDate");
+		String endDate = request.getParameter("endDate");
+		PageUtil<Map<String,Object>> pageUtil = new PageUtil<>();
+		pageUtil.setIndex(index);
+		pageUtil.setSize(pageSize);
+		userService.findChargeRecord(pageUtil,operateUser.getId(),beginDate,endDate);
+		request.setAttribute("pageUtil", pageUtil);
+		forward("/manager/chargeRecord.jsp");
+	}
+
+	/**退出登录
+	 * @param request
+	 * @param response
+	 */
+	private void logout(HttpServletRequest request, HttpServletResponse response) {
+		session.removeAttribute("user");
+		sendRedirect(getContextPath());
+	}
+
+	
+	/**登录
+	 * @param request
+	 * @param response
+	 */
+	private void login(HttpServletRequest request, HttpServletResponse response) {
+		String userName = request.getParameter("userName");
+		String passWord = request.getParameter("passWord");
+		String contextPath = getContextPath();
+		if(StringUtil.isNull(userName)||StringUtil.isNull(passWord)){
+			sendRedirect(contextPath+"/manager/login.jsp");
+			return;
+		}
+		boolean result = userService.login(userName,passWord,request);
+		if(result){//登录成功
+			sendRedirect("IndexServlet");
+		}else{//登录失败
+			sendRedirect(contextPath+"/manager/login.jsp");
+		}
+	}
+
+	/**添加用户的房卡
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void addUserCard(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String userId = request.getParameter("userId");
+		String total = request.getParameter("total");
+		String money = request.getParameter("money");
+		OperateUser user  = (OperateUser) session.getAttribute("user");
+		Integer operateId = user.getId();
+		float floatMoney = Float.parseFloat(money);
+		int result = userService.addUserCardByUserId(userId,total,operateId,floatMoney);
+		sendRedirect("UserServlet?method=userDetail&userId="+userId);
+	}
+
+	/**跳转到添加房卡页面
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void toAddCard(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String userId = request.getParameter("userId");
+		request.setAttribute("userId", userId);
+		forward("/manager/addUserCard.jsp");
+	}
+
+	/**显示用户的详情
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void userDetail(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String suserId = request.getParameter("userId");
+		int uid = Integer.parseInt(suserId);
+		User user = userService.findUserById(uid);
+		//查询用户的充值记录
+		PageUtil<Map<String, Object>> pageUtil = new PageUtil<>();
+		String pageIndex = request.getParameter("index");
+		int index = 1;
+		if(!StringUtil.isNull(pageIndex)){
+			index = Integer.parseInt(pageIndex);
+		}
+		pageUtil.setIndex(index);
+		pageUtil.setSize(10);
+		userService.queryUserChargeRecord(pageUtil , uid);
+		request.setAttribute("user", user);
+		request.setAttribute("pageUtil", pageUtil);
+		request.setAttribute("userId", suserId);
+		forward("/manager/userDetails.jsp");
+	}
+
+	/**显示用户列表
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void userList(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String idOrNick = request.getParameter("idOrNick");
+		if (idOrNick == null) {
+			idOrNick = "";
+		}else{
+			idOrNick = idOrNick.trim();
+		}
+		int userId = 0;
+		// 1.接收分页参数 index size
+		String sindex = request.getParameter("index");
+		int index = 1;
+		if (sindex != null && !"".equals(sindex)) {
+			index = Integer.parseInt(sindex);
+		}
+		String ssize = request.getParameter("size");
+		int size = 10;
+		if (ssize != null && !"".equals(ssize)) {
+			size = Integer.parseInt(ssize);
+		}
+		PageUtil<User> pageUtil = new PageUtil();
+		pageUtil.setIndex(index);
+		pageUtil.setSize(size);
+		userService.findUserByPage(pageUtil,idOrNick);
+		request.setAttribute("pageUtil", pageUtil);
+		request.setAttribute("idOrNick", idOrNick);
+		forward("/manager/userList.jsp");
+	}
+
+}

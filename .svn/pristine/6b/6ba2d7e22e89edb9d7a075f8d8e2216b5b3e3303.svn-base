@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="User">
+  <resultMap id="BaseResultMap" type="User">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="openid" jdbcType="VARCHAR" property="openid" />
+    <result column="nickName" jdbcType="VARCHAR" property="nickname" />
+    <result column="sex" jdbcType="VARCHAR" property="sex" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="country" jdbcType="VARCHAR" property="country" />
+    <result column="unionid" jdbcType="VARCHAR" property="unionid" />
+    <result column="userName" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="roomId" jdbcType="VARCHAR" property="roomid" />
+    <result column="roomCard" jdbcType="INTEGER" property="roomcard" />
+    <result column="refreshToken" jdbcType="VARCHAR" property="refreshtoken" />
+    <result column="createDate" jdbcType="TIMESTAMP" property="createdate" />
+    <result column="headimgurl" jdbcType="VARCHAR" property="headimgurl" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, openid, nickName, sex, province, city, country, unionid, userName, password, 
+    roomId, roomCard, refreshToken, createDate,headimgurl
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  
+  <select id="selectUserList" parameterType="hashMap" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user  where 1=1
+    <if test="_parameter.containsKey('id')">
+    	and user.id = #{id}
+    </if>
+    <if test="_parameter.containsKey('nickName')">
+    	and user.nickname like CONCAT('%',#{nickName},'%' )
+    </if>
+    limit #{rowStart},#{pageSize}
+  </select>
+  
+  
+  <select id="selectUserListTotal" parameterType="hashMap" resultType="java.lang.Integer">
+    select count(*) from user  where 1=1
+    <if test="_parameter.containsKey('id')">
+    	and user.id = #{id}
+    </if>
+    <if test="_parameter.containsKey('nickName')">
+    	and user.nickname like CONCAT('%',#{nickName},'%' )   
+    </if>
+    <if test="_parameter.containsKey('beginDate')">
+    	and user.createDate &gt;= #{beginDate} 
+    </if>
+    <if test="_parameter.containsKey('endDate')">
+    	and user.createDate &lt;= #{endDate} 
+    </if>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.zxz.domain.User">
+    insert into user (id, openid, nickName, 
+      sex, province, city, 
+      country, unionid, userName, 
+      password, roomId, roomCard, 
+      refreshToken, createDate)
+    values (#{id,jdbcType=INTEGER}, #{openid,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=VARCHAR}, #{province,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, 
+      #{country,jdbcType=VARCHAR}, #{unionid,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR}, #{roomid,jdbcType=VARCHAR}, #{roomcard,jdbcType=INTEGER}, 
+      #{refreshtoken,jdbcType=VARCHAR}, #{createdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zxz.domain.User">
+    insert into user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="openid != null">
+        openid,
+      </if>
+      <if test="nickname != null">
+        nickName,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="province != null">
+        province,
+      </if>
+      <if test="city != null">
+        city,
+      </if>
+      <if test="country != null">
+        country,
+      </if>
+      <if test="unionid != null">
+        unionid,
+      </if>
+      <if test="username != null">
+        userName,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="roomid != null">
+        roomId,
+      </if>
+      <if test="roomcard != null">
+        roomCard,
+      </if>
+      <if test="refreshtoken != null">
+        refreshToken,
+      </if>
+      <if test="createdate != null">
+        createDate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="openid != null">
+        #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null">
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null">
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null">
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="unionid != null">
+        #{unionid,jdbcType=VARCHAR},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="roomid != null">
+        #{roomid,jdbcType=VARCHAR},
+      </if>
+      <if test="roomcard != null">
+        #{roomcard,jdbcType=INTEGER},
+      </if>
+      <if test="refreshtoken != null">
+        #{refreshtoken,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null">
+        #{createdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zxz.domain.User">
+    update user
+    <set>
+      <if test="openid != null">
+        openid = #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        nickName = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null">
+        province = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null">
+        city = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null">
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="unionid != null">
+        unionid = #{unionid,jdbcType=VARCHAR},
+      </if>
+      <if test="username != null">
+        userName = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="roomid != null">
+        roomId = #{roomid,jdbcType=VARCHAR},
+      </if>
+      <if test="roomcard != null">
+        roomCard = #{roomcard,jdbcType=INTEGER},
+      </if>
+      <if test="refreshtoken != null">
+        refreshToken = #{refreshtoken,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null">
+        createDate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="headimgurl != null">
+        headimgurl = #{headimgurl,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zxz.domain.User">
+    update user
+    set openid = #{openid,jdbcType=VARCHAR},
+      nickName = #{nickname,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=VARCHAR},
+      province = #{province,jdbcType=VARCHAR},
+      city = #{city,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      unionid = #{unionid,jdbcType=VARCHAR},
+      userName = #{username,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      roomId = #{roomid,jdbcType=VARCHAR},
+      roomCard = #{roomcard,jdbcType=INTEGER},
+      refreshToken = #{refreshtoken,jdbcType=VARCHAR},
+      createDate = #{createdate,jdbcType=TIMESTAMP},
+      headimgurl = #{headimgurl,jdbcType=VARCHAR},
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateUserCard" parameterType="hashMap" >
+    update user
+    set  roomCard = roomCard + #{total}
+    where id = #{userId}
+  </update>
+</mapper>

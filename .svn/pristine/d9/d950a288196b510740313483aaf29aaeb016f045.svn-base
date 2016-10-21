@@ -1,0 +1,87 @@
+package com.zxz.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.zxz.dao.MessageDao;
+import com.zxz.dao.OneRoomDao;
+import com.zxz.dao.impl.MessageDaoImpl;
+import com.zxz.dao.impl.OneRoomDaoImpl;
+import com.zxz.domain.Message;
+import com.zxz.util.Constants;
+import com.zxz.util.PageUtil;
+import com.zxz.util.StringUtil;
+
+public class RoomService implements Constants{
+
+	OneRoomDao oneRoomDao = new OneRoomDaoImpl();
+	MessageDao messageDao = new MessageDaoImpl();
+	/**
+	 * @param pageUtil
+	 * @param userIdOrNick 房主id或昵称
+	 * @param roomNumber 房间号
+	 * @param beginDate 创建开始
+	 * @param endDate 创建结束
+	 * @param createDate 创建时间排序
+	 * @return
+	 */
+	public List<Map<String, Object>> roomListMap(PageUtil<Map<String, Object>> pageUtil, String userIdOrNick, String roomNumber, String beginDate, String endDate, String createDate
+			){
+		Map<String,Object> map = new HashMap<String, Object>();
+		
+		if(!StringUtil.isNull(userIdOrNick)){
+			boolean isNumber = StringUtil.isNumber(userIdOrNick);
+			if(isNumber){
+				map.put("userId", userIdOrNick);
+			}else{
+				map.put("userName", userIdOrNick);
+			}
+		}
+		if(!StringUtil.isNull(roomNumber)){
+			map.put("roomNumber", roomNumber);
+		}
+		if(!StringUtil.isNull(beginDate)){
+			map.put("beginDate", beginDate);
+		}
+		if(!StringUtil.isNull(endDate)){
+			map.put("endDate", endDate);
+		}
+		if(StringUtil.isNotAllEmpty(createDate)){
+			map.put(haveOrderby, true);
+			map.put("createDate", createDate);
+		}
+		map.put("rowStart", pageUtil.getRowStart());
+		//map.put("", value);
+		List<Map<String, Object>> list = oneRoomDao.findRoomListMap(map);
+		int total = oneRoomDao.findRoomListMapTotal(map);
+		
+		return null;
+		
+	}
+	
+	/**保存消息
+	 * @param message
+	 */
+	public void saveMessage(String smessage) {
+		Message message = new Message();
+		message.setMessage(smessage);
+		message.setType(0);
+		messageDao.insert(message);
+	}
+
+	/**得到购买的消息列表
+	 * @param pageUtil
+	 */
+	public void buyMessageList(PageUtil<Map<String, Object>> pageUtil) {
+		Map<String , Object> map = new HashMap<>();
+		map.put(rowStart, pageUtil.getStartRow());
+		map.put(pageSize, pageUtil.getSize());
+		map.put("type", 0);
+		List<Map<String,Object>> list =  messageDao.selectListByMap(map);
+		int total =  messageDao.selectListByMapTotal(map);
+		pageUtil.setList(list);
+		pageUtil.setTotalCount(total);
+	}
+	
+}

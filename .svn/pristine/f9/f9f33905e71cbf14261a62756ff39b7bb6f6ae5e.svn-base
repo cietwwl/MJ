@@ -1,0 +1,69 @@
+package com.zxz.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import com.zxz.dao.ConsumeRecordDao;
+import com.zxz.dao.UserMapper;
+import com.zxz.dao.impl.UserMapperImpl;
+import com.zxz.domain.ConsumeRecord;
+import com.zxz.domain.ConsumeRecordDaoImpl;
+import com.zxz.domain.User;
+import com.zxz.util.PageUtil;
+
+public class UserService {
+
+	UserMapper userDao = new UserMapperImpl();
+	ConsumeRecordDao consumeRecordDao = new ConsumeRecordDaoImpl();
+	
+	/**分页查询用户
+	 * @param pageUtil
+	 * @param nickName
+	 * @param userId
+	 */
+	public void findUserByPage(PageUtil<User> pageUtil,String idOrNick){
+		int index = pageUtil.getIndex();
+		int size = pageUtil.getSize();
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(idOrNick!=null&&!"".equals(idOrNick)){
+			String REGEX_ID = "^[\\d]*";
+			boolean isId = Pattern.matches(REGEX_ID, idOrNick.trim());//判读是否是数字
+			if(isId){
+				map.put("id", idOrNick);
+			}else{
+				map.put("nickName", idOrNick);
+			}
+		}
+		int toatal = userDao.selectUserListTotal(map);
+		map.put("rowStart",(index-1)*size);
+		map.put("pageSize",size);
+		List<User> userList = userDao.selectUserList(map);
+		pageUtil.setList(userList);
+		pageUtil.setTotalCount(toatal);
+	}
+	
+	/**根据用户ID查询用户的信息
+	 * @param userId
+	 * @return
+	 */
+	public User findUserById(int userId){
+		User user = userDao.selectByPrimaryKey(userId);
+		return user;
+	}
+
+	/**添加用户的房卡
+	 * @param userId
+	 * @param number
+	 */
+	public int addUserCardByUserId(String userId, String total) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		ConsumeRecord record = new ConsumeRecord();
+		record.setUserid(Integer.parseInt(userId));
+		record.setTotal(Integer.parseInt(total));
+		int result = consumeRecordDao.addUserCardByUserId(record);
+		return result;
+	}
+	
+}

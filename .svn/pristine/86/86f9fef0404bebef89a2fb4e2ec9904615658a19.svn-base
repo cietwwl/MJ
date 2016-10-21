@@ -1,0 +1,59 @@
+package com.zxz.dao.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import com.zxz.dao.BaseDao;
+import com.zxz.dao.UserMapper;
+import com.zxz.domain.User;
+
+public class UserMapperImpl extends BaseDao<User> implements UserMapper{
+
+	@Override
+	public int deleteByPrimaryKey(Integer id) {
+		return 0;
+	}
+
+	@Override
+	public int insert(User record) {
+		return 0;
+	}
+
+	@Override
+	public int insertSelective(User record) {
+		return 0;
+	}
+
+	@Override
+	public User selectByPrimaryKey(Integer id) {
+		User user = new User();
+		user.setId(id);
+		return (User) super.queryForObject("User.selectByPrimaryKey", user);
+	}
+
+	@Override
+	public int updateByPrimaryKeySelective(User record) {
+		return 0;
+	}
+
+	@Override
+	public int updateByPrimaryKey(User record) {
+		return 0;
+	}
+
+	@Override
+	public List<User> selectUserList(Map map) {
+		return queryForList("User.selectUserList", map);
+	}
+
+	@Override
+	public int selectUserListTotal(Map<String, Object> map) {
+		return (int) queryForObject("User.selectUserListTotal", map);
+	}
+
+	@Override
+	public int updateUserCard(Map<String, Object> map) {
+		return update("User.updateUserCard", map);
+	}
+
+}
